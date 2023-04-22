@@ -1,0 +1,82 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
+    <title>API Searcher</title>
+</head>
+<body>
+    <div class="container mt-5">
+        <h1 class="text-center">CORD Search Engine</h1>
+        <div class="row">
+            <div class="col-12">
+                <input type="text" class="form-control" id="searchQuery" placeholder="Enter search query">
+                <select class="form-select mt-3" id="searchMethod">
+                    <option value="sbert">SBERT Embeddings with cosine similarity</option>
+                    <option value="inverted">Inverted index</option>
+                </select>
+                <select class="form-select mt-3" id="resultCount">
+                    <option value="5">5</option>
+                    <option value="10">10</option>
+                    <option value="20">20</option>
+                </select>
+                <button class="btn btn-primary mt-3" id="searchBtn">Search</button>
+            </div>
+        </div>
+        <div class="row mt-5">
+            <div class="col-12">
+                <table class="table table-bordered" id="resultsTable">
+                    <thead>
+                        <tr>
+                            <th>Title</th>
+                            <th>URL</th>
+                        </tr>
+                    </thead>
+                    <tbody id="results">
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        $(document).ready(function() {
+            $('#searchBtn').click(function() {
+                const query = $('#searchQuery').val();
+                const searchMethod = $('#searchMethod').val();
+                const resultCount = $('#resultCount').val();
+
+                if (query) {
+                    let apiUrl = 'http://localhost:9090/search'
+
+                    $.ajax({
+                        url: apiUrl,
+                        method: 'GET',
+                        data: { q: query, top: resultCount, method: searchMethod },
+                        success: function(response) {
+                            displayResults(response);
+                        },
+                        error: function(error) {
+                            console.log(error);
+                        }
+                    });
+                }
+            });
+        });
+
+        function displayResults(results) {
+            let html = '';
+            results.forEach(function(result) {
+                html += `
+                    <tr>
+                        <td>${result.title}</td>
+                        <td><a href="${result.url}" target="_blank">${result.url}</a></td>
+                    </tr>`;
+            });
+            $('#results').html(html);
+        }
+    </script>
+</body>
+</html>
